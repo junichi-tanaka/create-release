@@ -21,11 +21,12 @@ jobs:
           TAG=$(bump patch)
           GITHUB_USER=$(echo "${GITHUB_REPOSITORY}" | cut -d / -f 1)
           GITHUB_REPO=$(echo "${GITHUB_REPOSITORY}" | cut -d / -f 2)
-          github-release release \
+          ghch --format=markdown --latest | \
+            github-release release \
               --user "${GITHUB_USER}" \
               --repo "${GITHUB_REPO}" \
               --tag "${TAG}" \
               --name "${TAG}" \
-              --description "$(ghch --format=markdown --latest)"
+              --description -
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
