@@ -1,0 +1,29 @@
+name: test
+on:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.16'
+      - run: |
+          go install github.com/haya14busa/bump@v1.1.0
+          go install github.com/Songmu/ghch/cmd/ghch@v0.10.2
+          go install github.com/github-release/github-release@v0.10.0
+      - run: |
+          TAG=$(bump patch)
+          GITHUB_USER=$(echo "${GITHUB_REPOSITORY}" | cut -d / -f 1)
+          GITHUB_REPO=$(echo "${GITHUB_REPOSITORY}" | cut -d / -f 2)
+          github-release release \
+              --user "${GITHUB_USER}" \
+              --repo "${GITHUB_REPO}" \
+              --tag "${TAG}" \
+              --name "${TAG}" \
+              --description "$(ghch --format=markdown --latest)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
